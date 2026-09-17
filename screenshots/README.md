@@ -1,9 +1,12 @@
-Place project screenshots in this folder.
+# Project Screenshots
 
-Recommended screenshots for the GitHub README:
+Place screenshots from your own local run here.
 
-1. Main monitoring window
-2. Multiple-face detection
-3. Face-absence detection
-4. Event log CSV
-5. Project architecture diagram
+Recommended filenames:
+
+- `monitoring.png`
+- `multiple-faces.png`
+- `face-absent.png`
+- `event-log.png`
+
+Only use screenshots that do not contain private or identifying information.

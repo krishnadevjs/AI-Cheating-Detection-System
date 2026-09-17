@@ -1,20 +1,40 @@
 # AI-Based Cheating Detection System
 
-A computer-vision-based examination monitoring prototype that analyzes webcam video in real time and flags potentially suspicious events for human review.
+> Real-time computer vision prototype for identifying potentially suspicious events during examinations.
 
-> **Important:** This project is a monitoring aid, not a system that can conclusively determine whether cheating occurred. Detection events can have false positives and should be reviewed by a human.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green.svg)](https://opencv.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Features
+## Overview
 
-- Real-time webcam monitoring
-- Face detection using OpenCV
-- Multiple-face detection
-- Candidate-absence detection
-- Basic head-position/movement analysis
-- On-screen event notifications
-- Timestamped CSV event logging
-- Configurable detection thresholds
-- Simple modular project structure
+This project is a lightweight computer-vision-based examination monitoring prototype. It uses a webcam and OpenCV to monitor a candidate's camera feed and record events that may require human review.
+
+The system focuses on three basic signals:
+
+- Face absence
+- Multiple faces
+- Significant movement of the detected face position
+
+The goal is to demonstrate how real-time video processing, event detection, and security-oriented logging can be combined into an examination-monitoring workflow.
+
+> **Important:** The system does not determine that cheating has occurred. It produces potential-suspicion events that require human review.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Webcam] --> B[OpenCV Frame Capture]
+    B --> C[Face Detection]
+    C --> D{Number of Faces}
+    D -->|0| E[Face Absence Detection]
+    D -->|1| F[Movement Analysis]
+    D -->|2+| G[Multiple Face Detection]
+    E --> H[Event Logger]
+    F --> H
+    G --> H
+    H --> I[logs/events.csv]
+```
 
 ## Detection Workflow
 
@@ -27,81 +47,167 @@ Frame Capture
    v
 Face Detection
    |
-   +--> No Face --------> Absence Event
+   +-------------------+
+   |                   |
+   v                   v
+No Face            Multiple Faces
+   |                   |
+   v                   v
+Absence Event     Multiple-Face Event
    |
-   +--> Multiple Faces -> Multiple-Face Event
-   |
-   +--> One Face ------> Head Movement Analysis
-                              |
-                              v
-                         Event Logger
+   +-------------------+
+             |
+             v
+     Single Face Present
+             |
+             v
+     Movement Analysis
+             |
+             v
+       Event Logger
+             |
+             v
+       CSV Report
 ```
 
-## Technology Stack
+## Features
 
-- Python 3.10+
-- OpenCV
-- NumPy
-- PyTest
+### 1. Real-Time Monitoring
 
-## Installation
+Captures frames from the default webcam and processes them continuously.
 
-```bash
-git clone https://github.com/YOUR-USERNAME/AI-Cheating-Detection-System.git
-cd AI-Cheating-Detection-System
+### 2. Face Detection
 
-python -m venv .venv
-```
+Uses OpenCV's Haar Cascade classifier to detect faces in each frame.
 
-### Windows
+### 3. Multiple-Face Detection
 
-```powershell
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
+Flags frames where more than one face is detected.
 
-### Linux/macOS
+### 4. Face-Absence Detection
 
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+Records an event when no face is detected continuously for the configured time period.
 
-## Run
+### 5. Movement Analysis
 
-```bash
-python main.py
-```
+Tracks the center of a detected face and flags significant movement beyond the configured threshold.
 
-The application opens the default webcam.
+### 6. Event Logging
 
-Press `q` to exit.
-
-Events are saved to:
+Events are timestamped and written to:
 
 ```text
 logs/events.csv
 ```
 
-## Detection Logic
+Example:
 
-### No Face
+```text
+timestamp,event,detail
+2026-09-18T10:30:12,Multiple Faces,2
+2026-09-18T10:31:04,Face Absent,0
+2026-09-18T10:32:18,Head Movement,1
+```
 
-If no face is detected continuously for the configured absence interval, an absence event is recorded.
+## Technology Stack
 
-### Multiple Faces
+| Technology | Purpose |
+|---|---|
+| Python | Application development |
+| OpenCV | Computer vision and webcam processing |
+| NumPy | Numerical/image-processing dependency |
+| PyTest | Basic automated testing |
+| CSV | Event logging |
 
-If more than one face is detected, a multiple-face event is recorded.
+## Project Structure
 
-### Head Movement
+```text
+AI-Cheating-Detection-System/
+│
+├── main.py
+├── requirements.txt
+├── README.md
+├── LICENSE
+├── .gitignore
+│
+├── src/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── face_detection.py
+│   ├── behavior_detection.py
+│   └── event_logger.py
+│
+├── tests/
+│   └── test_detection.py
+│
+├── screenshots/
+│   └── README.md
+│
+├── logs/
+│   └── .gitkeep
+│
+└── docs/
+    └── architecture.md
+```
 
-For a single detected face, the system tracks the movement of the face bounding-box center. Sustained movement beyond the configured threshold can generate a head-movement event.
+## Installation
 
-This is intentionally a lightweight demonstration rather than a medical-grade or production-grade pose-estimation model.
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/krishnadevjs/AI-Cheating-Detection-System.git
+cd AI-Cheating-Detection-System
+```
+
+### 2. Create a virtual environment
+
+Windows:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Start the application:
+
+```bash
+python main.py
+```
+
+The default webcam will open.
+
+Press:
+
+```text
+Q
+```
+
+to stop monitoring.
+
+Detected events are saved automatically to:
+
+```text
+logs/events.csv
+```
 
 ## Configuration
 
-Detection parameters can be changed in `src/config.py`:
+Detection parameters are stored in `src/config.py`.
 
 ```python
 ABSENCE_SECONDS = 3
@@ -109,60 +215,92 @@ MOVEMENT_THRESHOLD = 35
 EVENT_COOLDOWN_SECONDS = 5
 ```
 
-## Example Events
+These values can be adjusted for different camera environments.
 
-```text
-2026-09-18 10:30:12,Multiple Faces,2
-2026-09-18 10:31:04,Face Absent,0
-2026-09-18 10:32:18,Head Movement,1
+## Testing
+
+Run:
+
+```bash
+pytest
 ```
 
-## Project Structure
+The tests verify core behavior-detection logic such as multiple-face events and normal single-face operation.
 
-```text
-AI-Cheating-Detection-System/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── main.py
-├── src/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── face_detection.py
-│   ├── behavior_detection.py
-│   └── event_logger.py
-├── screenshots/
-├── logs/
-│   └── .gitkeep
-└── tests/
-    └── test_detection.py
+## Screenshots
+
+Add real screenshots from your local webcam run to the `screenshots/` directory.
+
+Recommended portfolio screenshots:
+
+1. Main monitoring window
+2. Single-face monitoring
+3. Multiple-face detection
+4. Face-absence detection
+5. Generated event log
+6. Project architecture
+
+Example README image syntax:
+
+```markdown
+![Multiple Face Detection](screenshots/multiple-faces.png)
 ```
+
+## Security and Privacy Considerations
+
+An examination-monitoring system processes potentially sensitive visual and behavioral information.
+
+A production implementation should consider:
+
+- Explicit user consent
+- Data minimization
+- Secure storage
+- Access control
+- Encryption
+- Retention and deletion policies
+- Audit logging
+- False-positive review
+- Applicable privacy and education regulations
+
+This prototype intentionally does not upload video to a remote service.
 
 ## Limitations
 
-- Webcam quality affects detection accuracy.
-- Lighting and camera angle can produce false positives.
-- Face detection alone cannot determine intent.
-- Head movement is only a basic proxy for potentially unusual behavior.
-- Events should be reviewed before any academic or disciplinary decision.
+This is a portfolio and learning project, not a production proctoring platform.
+
+Potential sources of false positives include:
+
+- Poor lighting
+- Camera positioning
+- Occlusion
+- Multiple people legitimately appearing in frame
+- Face-detection errors
+- Natural head movement
+
+The system should therefore be treated as an event-generation tool rather than an automated decision-maker.
 
 ## Future Improvements
 
-- Face recognition for candidate verification
-- MediaPipe/YOLO-based pose estimation
+- MediaPipe or YOLO-based detection
+- Improved head-pose estimation
 - Gaze estimation
+- Candidate identity verification
 - Object detection for prohibited items
-- Web dashboard for reviewing events
-- Encrypted evidence storage
+- Web-based monitoring dashboard
+- Database-backed event storage
+- Encrypted evidence management
 - Role-based access control
-- Database-backed event management
-
-## Ethical Considerations
-
-Exam-monitoring systems involve sensitive video and behavioral information. A real deployment should use informed consent, data minimization, appropriate retention policies, access controls, and applicable privacy regulations.
+- Configurable examination policies
+- Better automated testing
 
 ## Author
 
 **Krishnadev JS**
 
 Cybersecurity | Network Security | Ethical Hacking | Computer Vision
+
+GitHub: https://github.com/krishnadevjs
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE).
