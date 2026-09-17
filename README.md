@@ -141,6 +141,7 @@ AI-Cheating-Detection-System/
 │   └── test_detection.py
 │
 ├── screenshots/
+│   ├── monitoring-demo.png
 │   └── README.md
 │
 ├── logs/
@@ -149,6 +150,12 @@ AI-Cheating-Detection-System/
 └── docs/
     └── architecture.md
 ```
+
+## Screenshots
+
+The following screenshot demonstrates the system's monitoring interface, including normal face detection, multiple-face detection, face absence detection, and event logging.
+
+![AI Cheating Detection System - Monitoring Demo](screenshots/monitoring-demo.png)
 
 ## Installation
 
@@ -226,25 +233,6 @@ pytest
 ```
 
 The tests verify core behavior-detection logic such as multiple-face events and normal single-face operation.
-
-## Screenshots
-
-Add real screenshots from your local webcam run to the `screenshots/` directory.
-
-Recommended portfolio screenshots:
-
-1. Main monitoring window
-2. Single-face monitoring
-3. Multiple-face detection
-4. Face-absence detection
-5. Generated event log
-6. Project architecture
-
-Example README image syntax:
-
-```markdown
-![Multiple Face Detection](screenshots/multiple-faces.png)
-```
 
 ## Security and Privacy Considerations
 
